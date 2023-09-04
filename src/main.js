@@ -32,6 +32,15 @@ const pluginState = {
   isPluginEnabled: false,
 
   async startScrolling(e) {
+    if (
+      e.key === "Escape" || // Escape key
+      e.key.startsWith("F") || // Function keys (F1 to F12)
+      e.ctrlKey || // Control key
+      e.altKey || // Alt key
+      e.metaKey // Meta key (Windows key or Command key on Mac)
+    ) {
+      return;
+    }
     console.log("Scrolling to cursor position", e.key);
     const cursorPosition = await logseq.Editor.getEditingCursorPosition();
     if (cursorPosition) {
