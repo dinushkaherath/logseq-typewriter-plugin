@@ -8,17 +8,43 @@ const typewriterSvgString = typewriterSvgContent.content;
  */
 const model = {
   togglePluginState(e) {
-    console.log(e);
-    pluginState.togglePluginState();
+    pluginState.sendMessage();
+    if (pluginState.isPluginEnabled) {
+      pluginState.startEventListener();
+    } else {
+      pluginState.stopEventListener();
+    }
   },
 };
 
 const pluginState = {
   isPluginEnabled: false,
 
-  togglePluginState() {
+  async startScrolling(e) {
+    console.log("Scrolling to cursor position", e.key);
+    const cursorPosition = await logseq.Editor.getEditingCursorPosition();
+    if (cursorPosition) {
+      const value_to_center = cursorPosition.rect.y + cursorPosition.top;
+      const mainContentContainer = top.document.getElementById("main-content-container");
+      if (mainContentContainer) {
+        const currentScrollY = mainContentContainer.scrollTop;
+        const newScrollY = currentScrollY + value_to_center - 300;
+        mainContentContainer.scrollTo({ top: newScrollY });
+      }
+    }
+  },
+
+  startEventListener() {
+    top.document.addEventListener("keydown", this.startScrolling);
+  },
+
+  stopEventListener() {
+    top.document.removeEventListener("keydown", this.startScrolling);
+  },
+
+  sendMessage() {
     this.isPluginEnabled = !this.isPluginEnabled;
-    const message = this.isPluginEnabled ? "Plugin is ON" : "Plugin is OFF";
+    const message = this.isPluginEnabled ? "Typewriter Mode ENABLED" : "Typewriter Mode DISABLED";
     logseq.UI.showMsg(message);
   },
 };
@@ -58,4 +84,4 @@ function main() {
 }
 
 // bootstrap
-logseq.ready(main).catch(null);
+logseq.ready(main).catch(console.error);
