@@ -3,6 +3,17 @@ import typewriterSvgContent from "./typewriter.svg";
 
 const typewriterSvgString = typewriterSvgContent.content;
 
+/** settings **/
+const settingsSchema = [
+  {
+    key: "hotkey",
+    type: "string",
+    title: "Toggle Typewriter Mode Hotkey (Default hotkey: mod + T)",
+    description: "Set a hotkey to toggle typewriter mode",
+    default: "mod+T", // Default hotkey (mod + T)
+  },
+];
+
 /**
  * user model
  */
@@ -81,7 +92,17 @@ function main() {
       </a>
     `,
   });
+  if (logseq.settings.hotkey) {
+    logseq.App.registerCommandShortcut(
+      {
+        binding: logseq.settings.hotkey,
+      },
+      async () => {
+        model.togglePluginState();
+      }
+    );
+  }
 }
 
 // bootstrap
-logseq.ready(main).catch(console.error);
+logseq.useSettingsSchema(settingsSchema).ready(main).catch(console.error);
