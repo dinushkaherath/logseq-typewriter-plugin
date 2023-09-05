@@ -1,7 +1,7 @@
 {
   "name": "logseq-typewriter-plugin",
   "description": "A simple typewriter plugin for Logseq.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/index.html",
   "author": "glorious_inheritor",
   "scripts": {

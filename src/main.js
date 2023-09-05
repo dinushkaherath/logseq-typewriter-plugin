@@ -12,6 +12,13 @@ const settingsSchema = [
     description: "Set a hotkey to toggle typewriter mode",
     default: "mod+T", // Default hotkey (mod + T)
   },
+  {
+    key: "smoothDocumentFlow",
+    type: "boolean",
+    title: "",
+    description: "Up/Down moves 1 line instead of top or bottom of block",
+    default: true,
+  },
 ];
 
 /**
@@ -21,9 +28,9 @@ const model = {
   togglePluginState(e) {
     pluginState.sendMessage();
     if (pluginState.isPluginEnabled) {
-      pluginState.startEventListener();
+      pluginState.startTypewriter();
     } else {
-      pluginState.stopEventListener();
+      pluginState.stopTypewriter();
     }
   },
 };
@@ -37,6 +44,21 @@ const pluginState = {
     if (ignoreKeys.has(e.key)) {
       return;
     }
+
+    const cursorPosition = await logseq.Editor.getEditingCursorPosition();
+    if (cursorPosition) {
+      const valueToCenter = cursorPosition.rect.y + cursorPosition.top;
+      const mainContentContainer = top.document.getElementById("main-content-container");
+
+      if (mainContentContainer) {
+        const currentScrollY = mainContentContainer.scrollTop;
+        const newScrollY = currentScrollY + valueToCenter - 300;
+        mainContentContainer.scrollTo({ top: newScrollY });
+      }
+    }
+  },
+
+  async moveAndChangeBlocks(e) {
     const currentBlock = await logseq.Editor.getCurrentBlock();
     if (currentBlock) {
       // Get the UUID of the current block
@@ -63,26 +85,13 @@ const pluginState = {
       // If there is no current block, reset the previous block UUID in the plugin state
       pluginState.previousBlockUuid = null;
     }
-
-    const cursorPosition = await logseq.Editor.getEditingCursorPosition();
-
-    if (cursorPosition) {
-      const valueToCenter = cursorPosition.rect.y + cursorPosition.top;
-      const mainContentContainer = top.document.getElementById("main-content-container");
-
-      if (mainContentContainer) {
-        const currentScrollY = mainContentContainer.scrollTop;
-        const newScrollY = currentScrollY + valueToCenter - 300;
-        mainContentContainer.scrollTo({ top: newScrollY });
-      }
-    }
   },
 
-  startEventListener() {
+  startTypewriter() {
     top.document.addEventListener("keydown", this.startScrolling);
   },
 
-  stopEventListener() {
+  stopTypewriter() {
     top.document.removeEventListener("keydown", this.startScrolling);
   },
 
@@ -136,6 +145,16 @@ function main() {
       }
     );
   }
+  if (logseq.settings.smoothDocumentFlow) {
+    top.document.addEventListener("keydown", pluginState.moveAndChangeBlocks);
+  }
+  logseq.onSettingsChanged(() => {
+    if (logseq.settings.smoothDocumentFlow) {
+      top.document.addEventListener("keydown", pluginState.moveAndChangeBlocks);
+    } else {
+      top.document.removeEventListener("keydown", pluginState.moveAndChangeBlocks);
+    }
+  });
 }
 
 // Bootstrap
