@@ -30,14 +30,39 @@ const model = {
 
 const pluginState = {
   isPluginEnabled: false,
+  previousBlockUuid: null,
 
   async startScrolling(e) {
-    const ignoreKeys = ["Escape", "F", "Control", "Alt", "Meta"];
-    if (ignoreKeys.includes(e.key)) {
+    const ignoreKeys = new Set(["Escape", "F", "Control", "Alt", "Meta"]);
+    if (ignoreKeys.has(e.key)) {
       return;
     }
+    const currentBlock = await logseq.Editor.getCurrentBlock();
+    if (currentBlock) {
+      // Get the UUID of the current block
+      const targetUuid = currentBlock.uuid;
+      // Find the HTML element associated with the current block
+      const element = top.document.querySelector(`[blockid="${targetUuid}"]`);
 
-    console.log("Scrolling to cursor position", e.key);
+      // Check if the pressed key is "ArrowUp" or "ArrowDown"
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        // Check if the previous block UUID is different from the current block UUID and if the HTML element exists
+        if (pluginState.previousBlockUuid !== currentBlock.uuid && element) {
+          // Find the textarea element inside the HTML element
+          const textArea = element.querySelector("textarea");
+          if (textArea) {
+            // Set selectionStart and selectionEnd based on the pressed key
+            textArea.selectionStart = e.key === "ArrowUp" ? textArea.value.length : 0;
+            textArea.selectionEnd = textArea.selectionStart;
+          }
+        }
+        // Update the previous block UUID in the plugin state
+        pluginState.previousBlockUuid = currentBlock.uuid;
+      }
+    } else {
+      // If there is no current block, reset the previous block UUID in the plugin state
+      pluginState.previousBlockUuid = null;
+    }
 
     const cursorPosition = await logseq.Editor.getEditingCursorPosition();
 
