@@ -15,7 +15,7 @@ const settingsSchema = [
 ];
 
 /**
- * user model
+ * User model
  */
 const model = {
   togglePluginState(e) {
@@ -32,23 +32,22 @@ const pluginState = {
   isPluginEnabled: false,
 
   async startScrolling(e) {
-    if (
-      e.key === "Escape" || // Escape key
-      e.key.startsWith("F") || // Function keys (F1 to F12)
-      e.ctrlKey || // Control key
-      e.altKey || // Alt key
-      e.metaKey // Meta key (Windows key or Command key on Mac)
-    ) {
+    const ignoreKeys = ["Escape", "F", "Control", "Alt", "Meta"];
+    if (ignoreKeys.includes(e.key)) {
       return;
     }
+
     console.log("Scrolling to cursor position", e.key);
+
     const cursorPosition = await logseq.Editor.getEditingCursorPosition();
+
     if (cursorPosition) {
-      const value_to_center = cursorPosition.rect.y + cursorPosition.top;
+      const valueToCenter = cursorPosition.rect.y + cursorPosition.top;
       const mainContentContainer = top.document.getElementById("main-content-container");
+
       if (mainContentContainer) {
         const currentScrollY = mainContentContainer.scrollTop;
-        const newScrollY = currentScrollY + value_to_center - 300;
+        const newScrollY = currentScrollY + valueToCenter - 300;
         mainContentContainer.scrollTo({ top: newScrollY });
       }
     }
@@ -70,7 +69,7 @@ const pluginState = {
 };
 
 /**
- * app entry
+ * App entry
  */
 function main() {
   logseq.setMainUIInlineStyle({
@@ -79,8 +78,8 @@ function main() {
   });
 
   const key = logseq.baseInfo.id;
-
   logseq.provideModel(model);
+
   logseq.provideStyle(`
     div[data-injected-ui=typewriter-${key}] {
       display: flex;
@@ -90,7 +89,7 @@ function main() {
     }
   `);
 
-  // external btns
+  // External buttons
   logseq.App.registerUIItem("toolbar", {
     key: "typewriter",
     template: `
@@ -101,6 +100,7 @@ function main() {
       </a>
     `,
   });
+
   if (logseq.settings.hotkey) {
     logseq.App.registerCommandShortcut(
       {
@@ -113,5 +113,5 @@ function main() {
   }
 }
 
-// bootstrap
+// Bootstrap
 logseq.useSettingsSchema(settingsSchema).ready(main).catch(console.error);
