@@ -22,5 +22,8 @@
     "id": "logseq-typewriter-plugin",
     "title": "Typewriter Plugin",
     "icon": "./icon.png"
-  }
+  },
+  "sponsors": [
+    "https://www.buymeacoffee.com/glorious.inheritor"
+  ]
 }
