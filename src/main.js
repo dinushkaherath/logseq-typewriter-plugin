@@ -27,7 +27,7 @@ const settingsSchema = [
 const model = {
   togglePluginState(e) {
     pluginState.sendMessage();
-    if (pluginState.isPluginEnabled) {
+    if (pluginState.isTypewriterEnabled) {
       pluginState.startTypewriter();
     } else {
       pluginState.stopTypewriter();
@@ -36,7 +36,7 @@ const model = {
 };
 
 const pluginState = {
-  isPluginEnabled: false,
+  isTypewriterEnabled: false,
   previousBlockUuid: null,
 
   async startScrolling(e) {
@@ -76,6 +76,9 @@ const pluginState = {
             // Set selectionStart and selectionEnd based on the pressed key
             textArea.selectionStart = e.key === "ArrowUp" ? textArea.value.length : 0;
             textArea.selectionEnd = textArea.selectionStart;
+            if (pluginState.isTypewriterEnabled) {
+              pluginState.startScrolling(e);
+            }
           }
         }
         // Update the previous block UUID in the plugin state
@@ -96,8 +99,8 @@ const pluginState = {
   },
 
   sendMessage() {
-    this.isPluginEnabled = !this.isPluginEnabled;
-    const message = this.isPluginEnabled ? "Typewriter Mode ENABLED" : "Typewriter Mode DISABLED";
+    this.isTypewriterEnabled = !this.isTypewriterEnabled;
+    const message = this.isTypewriterEnabled ? "Typewriter Mode ENABLED" : "Typewriter Mode DISABLED";
     logseq.UI.showMsg(message);
   },
 };
