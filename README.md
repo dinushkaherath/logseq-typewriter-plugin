@@ -2,6 +2,10 @@
 
 A simple typewriter plugin for Logseq.
 
+### Demo
+
+![demo](./demo.gif)
+
 ### Licence
 
 MIT
