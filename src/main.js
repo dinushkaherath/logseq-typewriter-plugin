@@ -62,28 +62,42 @@ const pluginState = {
     const currentBlock = await logseq.Editor.getCurrentBlock();
     if (currentBlock) {
       // Get the UUID of the current block
-      const targetUuid = currentBlock.uuid;
-      // Find the HTML element associated with the current block
-      const element = top.document.querySelector(`[blockid="${targetUuid}"]`);
+      const currentBlockUuid = currentBlock.uuid;
 
       // Check if the pressed key is "ArrowUp" or "ArrowDown"
       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-        // Check if the previous block UUID is different from the current block UUID and if the HTML element exists
-        if (pluginState.previousBlockUuid !== currentBlock.uuid && element) {
-          // Find the textarea element inside the HTML element
-          const textArea = element.querySelector("textarea");
-          if (textArea) {
-            // Set selectionStart and selectionEnd based on the pressed key
-            textArea.selectionStart = e.key === "ArrowUp" ? textArea.value.length : 0;
-            textArea.selectionEnd = textArea.selectionStart;
-            if (pluginState.isTypewriterEnabled) {
-              pluginState.startScrolling(e);
-            }
+        // Check if the previous block UUID is different from the current block UUID
+        if (pluginState.previousBlockUuid !== currentBlockUuid) {
+          await logseq.Editor.editBlock(currentBlockUuid, {
+            pos: e.key === "ArrowUp" ? currentBlock.content.length : 0,
+          });
+          if (pluginState.isTypewriterEnabled) {
+            pluginState.startScrolling(e);
           }
         }
         // Update the previous block UUID in the plugin state
-        pluginState.previousBlockUuid = currentBlock.uuid;
+        pluginState.previousBlockUuid = currentBlockUuid;
       }
+
+      // // Find the HTML element associated with the current block
+      // const element = top.document.querySelector(`[blockid="${targetUuid}"]`);
+
+      // // Check if the pressed key is "ArrowUp" or "ArrowDown"
+      // if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      //   // Check if the previous block UUID is different from the current block UUID and if the HTML element exists
+      //   if (pluginState.previousBlockUuid !== currentBlock.uuid && element) {
+      //     // Find the textarea element inside the HTML element
+      //     const textArea = element.querySelector("textarea");
+      //     if (textArea) {
+      //       // Set selectionStart and selectionEnd based on the pressed key
+      //       textArea.selectionStart = e.key === "ArrowUp" ? textArea.value.length : 0;
+      //       textArea.selectionEnd = textArea.selectionStart;
+      //       if (pluginState.isTypewriterEnabled) {
+      //         pluginState.startScrolling(e);
+      //       }
+      //     }
+      //   }
+      // }
     } else {
       // If there is no current block, reset the previous block UUID in the plugin state
       pluginState.previousBlockUuid = null;
