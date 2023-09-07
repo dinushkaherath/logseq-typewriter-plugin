@@ -3,7 +3,7 @@
   "description": "A simple typewriter plugin for Logseq.",
   "version": "0.0.2",
   "main": "dist/index.html",
-  "author": "glorious_inheritor",
+  "author": "dinushkaherath",
   "scripts": {
     "dev": "vite",
     "build": "vite build"
@@ -24,6 +24,6 @@
     "icon": "./icon.png"
   },
   "sponsors": [
-    "https://www.buymeacoffee.com/glorious.inheritor"
+    "https://www.buymeacoffee.com/dinushka.herath"
   ]
 }
