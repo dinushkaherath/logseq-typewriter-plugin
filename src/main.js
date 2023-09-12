@@ -19,6 +19,13 @@ const settingsSchema = [
     description: "Up/Down moves 1 line instead of top or bottom of block",
     default: true,
   },
+  {
+    key: "smoothAnimation",
+    type: "boolean",
+    title: "",
+    description: "smoothly moves to cursor",
+    default: true,
+  },
 ];
 
 /**
@@ -38,9 +45,10 @@ const model = {
 const pluginState = {
   isTypewriterEnabled: false,
   previousBlockUuid: null,
+  typewriterAnimation: true,
 
   async startScrolling(e) {
-    const ignoreKeys = new Set(["Escape", "F", "Control", "Alt", "Meta"]);
+    const ignoreKeys = new Set(["Escape", "F", "Control", "Alt", "Meta", "Shift"]);
     if (ignoreKeys.has(e.key)) {
       return;
     }
@@ -53,7 +61,7 @@ const pluginState = {
       if (mainContentContainer) {
         const currentScrollY = mainContentContainer.scrollTop;
         const newScrollY = currentScrollY + valueToCenter - 300;
-        mainContentContainer.scrollTo({ top: newScrollY });
+        mainContentContainer.scrollTo({ top: newScrollY, behavior: model.typewriterAnimation ? "smooth" : "auto" });
       }
     }
   },
@@ -165,12 +173,16 @@ function main() {
   if (logseq.settings.smoothDocumentFlow) {
     top.document.addEventListener("keydown", pluginState.moveAndChangeBlocks);
   }
+
+  model.typewriterAnimation = logseq.settings.smoothAnimation;
+
   logseq.onSettingsChanged(() => {
     if (logseq.settings.smoothDocumentFlow) {
       top.document.addEventListener("keydown", pluginState.moveAndChangeBlocks);
     } else {
       top.document.removeEventListener("keydown", pluginState.moveAndChangeBlocks);
     }
+    model.typewriterAnimation = logseq.settings.smoothAnimation;
   });
 }
 
